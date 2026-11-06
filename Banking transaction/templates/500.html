@@ -1,0 +1,2 @@
+{% extends "base.html" %}{% block title %}Something went wrong{% endblock %}
+{% block content %}<section class="not-found"><span><i class="bi bi-exclamation-triangle"></i></span><h1>Something went wrong</h1><p>The request could not be completed. No account data was changed.</p><a class="btn btn-primary" href="{{ url_for('dashboard') }}">Back to overview</a></section>{% endblock %}

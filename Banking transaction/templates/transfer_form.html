@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Transfer money{% endblock %}
+{% block eyebrow %}Account transfer{% endblock %}
+{% block content %}
+<section class="page-heading">
+  <div>
+    <div class="breadcrumb-line"><a href="{{ url_for('transactions') }}">Transactions</a> <i class="bi bi-chevron-right"></i> Transfer</div>
+    <h1>Transfer money</h1>
+    <p>Move a simulated amount between two active accounts.</p>
+  </div>
+</section>
+<section class="form-layout">
+  <div class="panel form-panel">
+    {% if accounts|length >= 2 %}
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="submission_token" value="{{ token }}">
+      <div class="mb-3">
+        <label class="form-label" for="from_account_id">From account <span class="required">*</span></label>
+        <select class="form-select" name="from_account_id" id="from_account_id" required>
+          <option value="">Choose source account</option>
+          {% for account in accounts %}
+          <option value="{{ account.account_id }}" {% if request.form.get('from_account_id', selected_source_id|string if selected_source_id else '') == account.account_id|string %}selected{% endif %}>
+            #{{ account.account_id }} · {{ account.customer.display_name }} · {{ account.account_type }} · Available {{ account.current_balance|inr }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="to_account_id">To account <span class="required">*</span></label>
+        <select class="form-select" name="to_account_id" id="to_account_id" required>
+          <option value="">Choose destination account</option>
+          {% for account in accounts %}
+          <option value="{{ account.account_id }}" {% if request.form.get('to_account_id', selected_destination_id|string if selected_destination_id else '') == account.account_id|string %}selected{% endif %}>
+            #{{ account.account_id }} · {{ account.customer.display_name }} · {{ account.account_type }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label" for="amount">Amount <span class="required">*</span></label>
+          <div class="input-group">
+            <span class="input-group-text">₹</span>
+            <input class="form-control" type="number" id="amount" name="amount" min="0.01" max="9999999999999.99" step="0.01" required value="{{ request.form.get('amount','') }}">
+          </div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="transaction_date">Date and time <span class="required">*</span></label>
+          <input class="form-control" type="datetime-local" id="transaction_date" name="transaction_date" value="{{ request.form.get('transaction_date',now) }}" max="{{ now }}" required>
+        </div>
+        <div class="col-12">
+          <label class="form-label" for="description">Description <span class="muted">(optional)</span></label>
+          <input class="form-control" id="description" name="description" maxlength="180" value="{{ request.form.get('description','') }}" placeholder="e.g. Transfer between personal accounts">
+        </div>
+      </div>
+      <div class="form-actions">
+        <a class="btn btn-light" href="{{ url_for('transactions') }}">Cancel</a>
+        <button class="btn btn-primary"><i class="bi bi-arrow-left-right me-1"></i>Transfer money</button>
+      </div>
+    </form>
+    {% else %}
+    <div class="empty-inline">
+      <i class="bi bi-wallet2"></i>
+      <div><strong>Two active accounts are required</strong><p>Create another account or activate an inactive account before transferring.</p><a class="btn btn-primary btn-sm" href="{{ url_for('account_new') }}">Create an account</a></div>
+    </div>
+    {% endif %}
+  </div>
+  <aside class="panel transaction-summary">
+    <span class="kpi-icon lilac"><i class="bi bi-arrow-left-right"></i></span>
+    <h2>Before you transfer</h2>
+    <ul>
+      <li>Both accounts must be active and different.</li>
+      <li>The source account must have enough available balance.</li>
+      <li>Both account updates are saved together or not at all.</li>
+      <li>The transfer is recorded as a debit and a matching credit.</li>
+    </ul>
+    <div class="summary-disclaimer"><i class="bi bi-info-circle"></i> Educational simulation only. No real funds are moved.</div>
+  </aside>
+</section>
+{% endblock %}

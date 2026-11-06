@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101b3d">
+  <title>{% block title %}BankSight{% endblock %} · BankSight</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+  {% block head %}{% endblock %}
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar">
+    <a class="brand" href="{{ url_for('dashboard') }}"><span class="brand-mark"><i class="bi bi-soundwave"></i></span><span>bank<span class="brand-light">sight</span></span></a>
+    <div class="workspace-label">WORKSPACE</div>
+    <nav class="side-nav" aria-label="Main navigation">
+      {% set nav_items = [
+        ('dashboard','Overview','bi-grid-1x2-fill'),
+        ('customers','Customers','bi-people'),
+        ('accounts','Accounts','bi-wallet2'),
+        ('transactions','Transactions','bi-arrow-left-right'),
+        ('analytics_page','Analytics','bi-bar-chart-line'),
+        ('reports','Reports','bi-file-earmark-bar-graph'),
+        ('review_queue','Review queue','bi-shield-exclamation'),
+        ('settings','Settings','bi-sliders')
+      ] %}
+      {% for endpoint, label, icon in nav_items %}
+      <a class="nav-link {% if request.endpoint == endpoint %}active{% endif %}" href="{{ url_for(endpoint) }}">
+        <i class="bi {{ icon }}"></i><span>{{ label }}</span>
+        {% if endpoint == 'review_queue' %}
+        <span class="nav-dot" aria-label="Review flags"></span>
+        {% endif %}
+      </a>
+      {% endfor %}
+    </nav>
+    <div class="sidebar-note"><i class="bi bi-info-circle"></i><span>Education simulation<br>Not a real banking service</span></div>
+    <div class="sidebar-bottom">
+      <div class="avatar">BS</div><div class="profile-copy"><strong>BankSight</strong><small>Local demo workspace</small></div>
+    </div>
+  </aside>
+  <main class="main-area">
+    <header class="topbar">
+      <button class="icon-button mobile-menu" type="button" id="menuToggle" aria-label="Open navigation"><i class="bi bi-list"></i></button>
+      <div class="topbar-context"><span class="eyebrow">BANKSIGHT / SIMULATION</span><strong>{% block eyebrow %}Financial overview{% endblock %}</strong></div>
+      <div class="topbar-actions"><span class="live-pill"><span></span> Local demo</span><span class="topbar-date">{{ current_year }}</span></div>
+    </header>
+    <div class="page-content">
+      <div class="disclaimer"><i class="bi bi-info-circle-fill"></i><span>Educational simulation only · All account balances and transactions are fictional.</span></div>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}<div class="flash-stack">{% for category, message in messages %}<div class="alert alert-{{ category }} alert-dismissible fade show" role="status">{{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Dismiss"></button></div>{% endfor %}</div>{% endif %}
+      {% endwith %}
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

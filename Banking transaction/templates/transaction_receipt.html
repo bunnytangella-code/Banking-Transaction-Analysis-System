@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Receipt · Transaction #{{ txn.transaction_id }}{% endblock %}
+{% block eyebrow %}Transaction receipt{% endblock %}
+{% block head %}
+<style>
+  .receipt-panel { max-width: 720px; margin: 0 auto; padding: 32px; }
+  .receipt-header { display: flex; justify-content: space-between; gap: 20px; padding-bottom: 22px; border-bottom: 1px solid #e6e9f0; }
+  .receipt-header h1 { margin: 0; color: #192545; font-size: 24px; font-weight: 800; }
+  .receipt-header p, .receipt-note { margin: 6px 0 0; color: #68738a; font-size: 13px; }
+  .receipt-amount { padding: 24px 0; text-align: center; }
+  .receipt-amount span { display: block; color: #68738a; font-size: 13px; }
+  .receipt-amount strong { display: block; margin-top: 5px; font-size: 30px; }
+  .receipt-rows { margin: 0; }
+  .receipt-rows div { display: flex; justify-content: space-between; gap: 20px; padding: 13px 0; border-top: 1px solid #edf0f5; }
+  .receipt-rows dt { color: #68738a; font-weight: 500; }
+  .receipt-rows dd { margin: 0; text-align: right; font-weight: 600; }
+  .receipt-note { margin-top: 22px; }
+  .receipt-actions { display: flex; justify-content: center; gap: 10px; margin: 20px auto; }
+  @media print {
+    .sidebar, .topbar, .disclaimer, .page-heading, .receipt-actions { display: none !important; }
+    .main-area { margin-left: 0 !important; }
+    .page-content { padding: 0 !important; }
+    .receipt-panel { max-width: none; padding: 0; border: 0 !important; box-shadow: none !important; }
+    body { background: #fff !important; }
+  }
+</style>
+{% endblock %}
+{% block content %}
+<section class="page-heading">
+  <div>
+    <div class="breadcrumb-line"><a href="{{ url_for('transaction_detail', transaction_id=txn.transaction_id) }}">Transaction #{{ txn.transaction_id }}</a> <i class="bi bi-chevron-right"></i> Receipt</div>
+    <h1>Transaction receipt</h1>
+    <p>Printable confirmation for this simulated transaction.</p>
+  </div>
+</section>
+<div class="receipt-actions">
+  <button class="btn btn-primary" type="button" onclick="window.print()"><i class="bi bi-printer me-2"></i>Print / Save as PDF</button>
+  <a class="btn btn-outline-secondary" href="{{ url_for('transaction_detail', transaction_id=txn.transaction_id) }}">Back to transaction</a>
+</div>
+<section class="panel receipt-panel">
+  <header class="receipt-header">
+    <div><h1>BankSight</h1><p>Simulated transaction receipt</p></div>
+    <div class="text-end"><strong>Transaction #{{ txn.transaction_id }}</strong><p>{{ txn.transaction_date.strftime('%d %b %Y, %H:%M') }}</p></div>
+  </header>
+  <div class="receipt-amount {{ 'positive' if txn.transaction_type == 'Deposit' else 'negative' }}">
+    <span>{% if txn.description and txn.description.startswith('Transfer from account #') %}Transfer in{% elif txn.description and txn.description.startswith('Transfer to account #') %}Transfer out{% else %}{{ txn.transaction_type }}{% endif %}</span>
+    <strong>{{ '+' if txn.transaction_type == 'Deposit' else '−' }}{{ txn.amount|inr }}</strong>
+  </div>
+  <dl class="receipt-rows">
+    <div><dt>Customer</dt><dd>{{ txn.account.customer.display_name }}</dd></div>
+    <div><dt>Account</dt><dd>#{{ txn.account_id }} · {{ txn.account.account_type }}</dd></div>
+    <div><dt>Transaction type</dt><dd>{% if txn.description and txn.description.startswith('Transfer from account #') %}Transfer in{% elif txn.description and txn.description.startswith('Transfer to account #') %}Transfer out{% else %}{{ txn.transaction_type }}{% endif %}</dd></div>
+    <div><dt>Date and time</dt><dd>{{ txn.transaction_date.strftime('%d %B %Y, %H:%M') }}</dd></div>
+    <div><dt>Description</dt><dd>{{ txn.description or 'No description' }}</dd></div>
+  </dl>
+  <p class="receipt-note">Educational simulation only. This is not a real bank receipt and no real funds were transferred.</p>
+</section>
+{% endblock %}
